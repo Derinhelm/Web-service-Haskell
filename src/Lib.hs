@@ -6,14 +6,13 @@ module Lib
     ( webAppEntry
     ) where
 
-import Servant(serve, Proxy(..), Server, JSON, Get, (:>))
+import Servant
 import Data.Aeson(ToJSON)
 import GHC.Generics(Generic)
 import Network.Wai(Application)
 import Network.Wai.Handler.Warp(run)
 
-type UserAPI = "users1" :> Get '[JSON] [User]
-
+type UserAPI = "users1" :> Get '[JSON] [User] :<|> "users2" :> Get '[JSON] [User]
 
 --похоже просто, если пришло users, то сделай Get с такими параметрами 
 
@@ -27,12 +26,20 @@ instance ToJSON User
 
 users1 :: [User]
 users1 =
-  [ User "Isaac Newton"    "isaac@newton.co.uk"
-  , User "Albert Einstein" "ae@mc2.org"
+  [ User "Albert Einstein" "ae@mc2.org"
   ]
 
+users2 :: [User]
+users2 =
+  [ User "Isaac Newton"    "isaac@newton.co.uk"
+  ]
+
+
 server :: Server UserAPI
-server = return users1  ---both return does is wrap a value into a container
+server = u1 :<|> u2
+  where u1 = return users1 
+        u2 = return users2
+ ---both return does is wrap a value into a container
 ---For example an element can be wrapped in a list: return 2 == [2]
 ---похоже, что упаковка в монады
 
