@@ -11,8 +11,7 @@ description:         Please see the README file.
 dependencies:
 - base >= 4.7 && < 5
 - servant-server
-- aeson
-- wai
+- servant
 - warp 
 library:
   source-dirs: src
