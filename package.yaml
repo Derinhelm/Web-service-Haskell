@@ -13,6 +13,8 @@ dependencies:
 - servant-server
 - servant
 - warp 
+- hasql >= 1.4
+- bytestring
 library:
   source-dirs: src
 

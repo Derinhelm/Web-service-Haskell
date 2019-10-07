@@ -6,3 +6,6 @@ resolver: lts-13.6
 # User packages to be built.
 packages:
 - .
+
+extra-deps:
+  - hasql-1.4
