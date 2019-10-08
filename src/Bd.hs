@@ -8,26 +8,43 @@ module Bd
     ( f1
     ) where
     
-    import     Hasql.Connection
-    import     Hasql.Decoders
-    import     Hasql.Encoders
-    import     Hasql.Session
-    import     Hasql.Statement
+    
     import Data.ByteString.Internal
-    import Data.Int
     import Data.Either
+    import Prelude
+    import Data.Int
+    import Data.Functor.Contravariant
+    import Hasql.Session (Session)
+    import Hasql.Statement (Statement(..))
+    import qualified Hasql.Session as Session
+    import qualified Hasql.Decoders as Decoders
+    import qualified Hasql.Encoders as Encoders
+    import qualified Hasql.Connection as Connection
 
-
-
-    createConnect :: IO()
-    createConnect =  do 
-                        Right connection1 <- acquire s
-                        Right result <- run sql1 connection1
-                        putStrLn . show $ result
-                            where 
-                                s =  settings  "localhost" 5432 "derin" "qwerty" "graph"
-                                sql1 = Hasql.Session.sql "INSERT INTO node VALUES('7', 'pw');"
+    
 
 
     f1 :: IO ()
-    f1 = createConnect 
+    f1 = do
+        Right connection <- Connection.acquire connectionSettings
+        Right result <- Session.run (sum1 3 8) connection
+        print result
+        where
+          connectionSettings = Connection.settings "localhost" 5432 "derin" "qwerty" "graph"
+      
+            
+    sum1 :: Int64 -> Int64 -> Session Int64
+    sum1 a b = do
+        -- Get the sum of a and b
+        Session.statement (a, b) sumStatement --(a, b) - параметр, sumStatement - результат
+    
+ 
+      
+    sumStatement :: Statement (Int64, Int64) Int64
+    sumStatement = Statement sql encoder decoder True where
+        sql = "select $1 + $2"
+        encoder =
+          (fst >$< Encoders.param (Encoders.nonNullable Encoders.int8)) <>
+          (snd >$< Encoders.param (Encoders.nonNullable Encoders.int8))
+        decoder = Decoders.singleRow (Decoders.column (Decoders.nonNullable Decoders.int8))
+      
