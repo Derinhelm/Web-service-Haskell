@@ -22,6 +22,11 @@ module Bd
     import qualified Hasql.Connection as Connection
 
     
+    f2 :: Session.QueryError -> IO ()
+    f2 _ = putStrLn "1"
+    
+    f3 :: a -> IO ()
+    f3 _ = putStrLn "2"
 
 
     f1 :: IO ()
@@ -33,18 +38,18 @@ module Bd
           connectionSettings = Connection.settings "localhost" 5432 "derin" "qwerty" "graph"
       
             
-    sum1 :: Int64 -> Int64 -> Session Int64
+    sum1 :: Int64 -> Int64 -> Session [Int64]
     sum1 a b = do
         -- Get the sum of a and b
         Session.statement (a, b) sumStatement --(a, b) - параметр, sumStatement - результат
     
  
       
-    sumStatement :: Statement (Int64, Int64) Int64
+    sumStatement :: Statement (Int64, Int64) [Int64]
     sumStatement = Statement sql encoder decoder True where
-        sql = "select $1 + $2"
+        sql = "select \"idNode\" from node;"
         encoder =
           (fst >$< Encoders.param (Encoders.nonNullable Encoders.int8)) <>
           (snd >$< Encoders.param (Encoders.nonNullable Encoders.int8))
-        decoder = Decoders.singleRow (Decoders.column (Decoders.nonNullable Decoders.int8))
+        decoder = Decoders.rowList (Decoders.column (Decoders.nonNullable Decoders.int8))
       
