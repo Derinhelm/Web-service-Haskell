@@ -21,35 +21,26 @@ module Bd
     import qualified Hasql.Encoders as Encoders
     import qualified Hasql.Connection as Connection
 
-    
-    f2 :: Session.QueryError -> IO ()
-    f2 _ = putStrLn "1"
-    
-    f3 :: a -> IO ()
-    f3 _ = putStrLn "2"
 
-
-    f1 :: IO ()
+    f1 ::  IO (String)
     f1 = do
         Right connection <- Connection.acquire connectionSettings
-        Right result <- Session.run (sum1 3 8) connection
-        print result
+        Right result <- Session.run (getNodes) connection
+        return . show $ result
         where
           connectionSettings = Connection.settings "localhost" 5432 "derin" "qwerty" "graph"
       
             
-    sum1 :: Int64 -> Int64 -> Session [Int64]
-    sum1 a b = do
-        -- Get the sum of a and b
-        Session.statement (a, b) sumStatement --(a, b) - параметр, sumStatement - результат
+
+    getNodes ::  Session [Int64]
+    getNodes = do
+        Session.statement () getNodesStatement 
     
  
       
-    sumStatement :: Statement (Int64, Int64) [Int64]
-    sumStatement = Statement sql encoder decoder True where
+    getNodesStatement :: Statement () [Int64] --- надо Int64 - для idNode
+    getNodesStatement = Statement sql encoder decoder True where
         sql = "select \"idNode\" from node;"
-        encoder =
-          (fst >$< Encoders.param (Encoders.nonNullable Encoders.int8)) <>
-          (snd >$< Encoders.param (Encoders.nonNullable Encoders.int8))
+        encoder = Encoders.noParams -- без параметров
         decoder = Decoders.rowList (Decoders.column (Decoders.nonNullable Decoders.int8))
       
