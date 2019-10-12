@@ -16,6 +16,7 @@ dependencies:
 - hasql >= 1.4
 - aeson
 - bytestring
+- text
 library:
   source-dirs: src
 

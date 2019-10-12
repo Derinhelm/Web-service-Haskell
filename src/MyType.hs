@@ -14,6 +14,12 @@ import Data.Int
 import Data.Aeson
 import GHC.Generics
 
+data Creator = Creator 
+    {   label :: String
+    } deriving (Eq, Show, Generic, FromJSON)
+instance ToJSON Creator
+
+
 data Renamer = Renamer 
     {   id :: Int64,
         newLabel :: Char
@@ -26,9 +32,5 @@ data Linker = Linker
     } deriving (Eq, Show, Generic, FromJSON)
 instance ToJSON Linker
 
-data Neighbours = Neighbours 
-    {   idNeighb :: Int64
-    } deriving (Eq, Show, Generic, FromJSON)
-instance ToJSON Neighbours
 
 
