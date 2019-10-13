@@ -23,7 +23,7 @@ instance ToJSON Creator
 
 data Renamer = Renamer 
   { id :: Int64
-  , newLabel :: Char
+  , newLabel :: String
   } 
   deriving (Eq, Show, Generic, FromJSON)
 instance ToJSON Renamer

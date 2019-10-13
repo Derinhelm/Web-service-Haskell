@@ -3,4 +3,6 @@ module Main where
   import Lib
   
   main :: IO ()
-  main = webAppEntry
+  main = do 
+    webAppEntry
+    putStrLn "\n"

@@ -82,15 +82,15 @@ module Bd
 
   renameNode :: Renamer -> Session [Int64]
   renameNode (MyType.Renamer a b) = do
-    Session.statement (a, b) renameNodeStatement
+    Session.statement (a, (Data.Text.pack b)) renameNodeStatement
           
         
           
-  renameNodeStatement :: Statement.Statement (Int64, Char) [Int64] --- надо Int64 - для idNode
+  renameNodeStatement :: Statement.Statement (Int64, Text) [Int64] --- надо Int64 - для idNode
   renameNodeStatement = Statement.Statement sql encoder decoder True 
     where
       sql = "UPDATE node SET label = $2 WHERE \"idNode\" = $1 RETURNING \"idNode\";"
-      encoder = (fst >$< Encoders.param (Encoders.nonNullable Encoders.int8)) <> (snd >$< Encoders.param (Encoders.nonNullable Encoders.char))
+      encoder = (fst >$< Encoders.param (Encoders.nonNullable Encoders.int8)) <> (snd >$< Encoders.param (Encoders.nonNullable Encoders.text))
       decoder = Decoders.rowList (Decoders.column (Decoders.nonNullable Decoders.int8))
 
 
@@ -108,26 +108,27 @@ module Bd
       encoder = (fst >$< Encoders.param (Encoders.nonNullable Encoders.int8)) <> (snd >$< Encoders.param (Encoders.nonNullable Encoders.int8))
       decoder = Decoders.rowList (Decoders.column (Decoders.nonNullable Decoders.int8))
 
-  getNodes :: a -> Session [Text]
+  getNodes :: a -> Session [(Int64, Text)]
   getNodes _  = do
       Session.statement () getNodesStatement 
   
+  x :: Decoders.Row (Int64, Text)
+  x = (,) <$> (Decoders.column . Decoders.nonNullable) Decoders.int8 <*> (Decoders.column . Decoders.nonNullable) Decoders.text 
+    
  
     
-  getNodesStatement :: Statement.Statement () [Text] --- надо Int64 - для idNode
+  getNodesStatement :: Statement.Statement () [(Int64, Text)] --- надо Int64 - для idNode
   getNodesStatement = Statement.Statement sql encoder decoder True 
     where
-      sql = "select \"label\" from node;"
+      sql = "select  \"idNode\", \"label\" from node;"
       encoder = Encoders.noParams -- без параметров
-      decoder = Decoders.rowList (Decoders.column (Decoders.nonNullable Decoders.text))
+      decoder =  Decoders.rowList (x)
 
   
   getNeighb :: Int64 -> Session ([(Int64, Text)])
   getNeighb a = do
       Session.statement (a) getNeighbStatement
           
-  x :: Decoders.Row (Int64, Text)
-  x = (,) <$> (Decoders.column . Decoders.nonNullable) Decoders.int8 <*> (Decoders.column . Decoders.nonNullable) Decoders.text 
          
           
   getNeighbStatement :: Statement.Statement (Int64) ([(Int64, Text)]) --- надо Int64 - для idNode
