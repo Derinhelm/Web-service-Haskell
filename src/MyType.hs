@@ -15,21 +15,24 @@ import Data.Aeson
 import GHC.Generics
 
 data Creator = Creator 
-    {   label :: String
-    } deriving (Eq, Show, Generic, FromJSON)
+  { label :: String
+  } 
+  deriving (Eq, Show, Generic, FromJSON)
 instance ToJSON Creator
 
 
 data Renamer = Renamer 
-    {   id :: Int64,
-        newLabel :: Char
-    } deriving (Eq, Show, Generic, FromJSON)
+  { id :: Int64
+  , newLabel :: Char
+  } 
+  deriving (Eq, Show, Generic, FromJSON)
 instance ToJSON Renamer
 
 data Linker = Linker 
-    {   idFrom :: Int64,
-        idTo :: Int64
-    } deriving (Eq, Show, Generic, FromJSON)
+  { idFrom :: Int64
+  , idTo :: Int64
+  } 
+  deriving (Eq, Show, Generic, FromJSON)
 instance ToJSON Linker
 
 
