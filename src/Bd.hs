@@ -37,27 +37,21 @@ module Bd
       connectionSettings = Connection.settings "localhost" 5432 "derin" "qwerty" "graph"
 
 
-  checker :: Show a => (Either Session.QueryError a) -> a -> IO (a)
-  checker (Right result) _ = return result
-  checker (Left result) nullParam = do
-      putStrLn . show $ result
-      return nullParam
+  checker :: Show a => (Either Session.QueryError a) -> IO (Either Text a)
+  checker (Right result) = return (Right result)
+  checker (Left result) = return (Left (pack . show $ result))
 
-
-  executer :: Show b => (a -> Session b) -> b -> a -> (Either Connection.ConnectionError Connection.Connection) -> IO (b)
-  executer _ nullParam  _ (Left con) = do
-      putStrLn . show $ con
-      return nullParam
-  executer fun nullParam param  (Right con) = do
+  executer :: Show b => (a -> Session b) -> a -> (Either Connection.ConnectionError Connection.Connection) -> IO (Either Text b)
+  executer _  _ (Left con) = return (Left (pack . show $ con))
+  executer fun param  (Right con) = do
       result <- (Session.run (fun param) con)
-      checker result nullParam
+      checker result 
 
 
-  --- nullParam - возвращаемое значение в случае неудачи
-  mainDB :: Show b => (a -> Session b) -> b -> a -> IO (b)
-  mainDB fun nullParam param = do
+  mainDB :: Show b => (a -> Session b) -> a -> IO (Either Text b)
+  mainDB fun param = do
       connection <- connect   
-      executer fun nullParam param connection
+      executer fun param connection
 
 
 
