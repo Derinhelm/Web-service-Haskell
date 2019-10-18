@@ -9,13 +9,14 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 module MyType where
-
-import Data.Int
+  
 import Data.Aeson
+import Data.Int
+import Data.Text(pack, Text)
 import GHC.Generics
 
 data Creator = Creator 
-  { label :: String
+  { label :: Text
   } 
   deriving (Eq, Show, Generic, FromJSON)
 instance ToJSON Creator
@@ -23,7 +24,7 @@ instance ToJSON Creator
 
 data Renamer = Renamer 
   { id :: Int64
-  , newLabel :: String
+  , newLabel :: Text
   } 
   deriving (Eq, Show, Generic, FromJSON)
 instance ToJSON Renamer

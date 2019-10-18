@@ -37,28 +37,33 @@ module Bd
       connectionSettings = Connection.settings "localhost" 5432 "derin" "qwerty" "graph"
 
 
-  checker ::  Show a => (Either Session.QueryError a) -> IO (String)
-  checker (Right result) = return . show $ result
-  checker (Left result) = return . show $ result
+  checker :: Show a => (Either Session.QueryError a) -> a -> IO (a)
+  checker (Right result) _ = return result
+  checker (Left result) nullParam = do
+      putStrLn . show $ result
+      return nullParam
 
 
-  --- первый параметр - параметр для запроса, второй - функция для запроса
-  executer :: Show b => a -> (a -> Session b) -> (Either Connection.ConnectionError Connection.Connection) -> IO (String)
-  executer _  _ (Left con) = return . show $ con 
-  executer param fun (Right con) = do
-      result <- (Session.run (fun param)  con)
-      checker result
+  executer :: Show b => (a -> Session b) -> b -> a -> (Either Connection.ConnectionError Connection.Connection) -> IO (b)
+  executer _ nullParam  _ (Left con) = do
+      putStrLn . show $ con
+      return nullParam
+  executer fun nullParam param  (Right con) = do
+      result <- (Session.run (fun param) con)
+      checker result nullParam
 
-  mainDB :: Show b => (a -> Session b) -> a -> IO (String)
-  mainDB param fun = do
+
+  --- nullParam - возвращаемое значение в случае неудачи
+  mainDB :: Show b => (a -> Session b) -> b -> a -> IO (b)
+  mainDB fun nullParam param = do
       connection <- connect   
-      executer fun param connection
+      executer fun nullParam param connection
 
 
 
   addNode :: Creator -> Session [Int64]
   addNode (Creator a) = do
-      Session.statement (Data.Text.pack a) addNodeStatement
+      Session.statement a addNodeStatement
       
      
       
@@ -82,7 +87,7 @@ module Bd
 
   renameNode :: Renamer -> Session [Int64]
   renameNode (MyType.Renamer a b) = do
-    Session.statement (a, (Data.Text.pack b)) renameNodeStatement
+    Session.statement (a, b) renameNodeStatement
           
         
           

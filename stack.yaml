@@ -9,4 +9,3 @@ packages:
 
 extra-deps:
   - hasql-1.4
-  - text-1.2.4.0

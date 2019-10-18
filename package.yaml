@@ -16,7 +16,10 @@ dependencies:
 - hasql >= 1.4
 - aeson
 - bytestring
-- text >= 1.2.4.0
+- servant-swagger-ui
+- text
+- swagger2
+- servant-swagger
 library:
   source-dirs: src
 
