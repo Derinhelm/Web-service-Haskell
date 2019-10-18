@@ -22,7 +22,7 @@ module Bd
   import Data.Either
   import Data.Int
   import Data.Functor.Contravariant
-  import Data.Text
+  import Data.Text(pack, Text)
   import Hasql.Session (Session)
   import qualified Hasql.Session as Session
   import qualified Hasql.Statement as Statement
@@ -62,10 +62,10 @@ module Bd
       
      
       
-  addNodeStatement :: Statement.Statement (Text) [Int64] --- надо Int64 - для idNode
+  addNodeStatement :: Statement.Statement (Text) [Int64]
   addNodeStatement = Statement.Statement sql encoder decoder True 
     where
-      sql = "INSERT INTO node(label) VALUES($1) RETURNING \"idNode\";"
+      sql = "INSERT INTO node(label) VALUES($1) RETURNING id_node;"
       encoder = (Encoders.param (Encoders.nonNullable Encoders.text))
       decoder = Decoders.rowList (Decoders.column (Decoders.nonNullable Decoders.int8))
     
@@ -73,10 +73,10 @@ module Bd
   deleteNode a = do
       Session.statement (a) deleteNodeStatement
         
-  deleteNodeStatement :: Statement.Statement (Int64) [Int64] --- надо Int64 - для idNode
+  deleteNodeStatement :: Statement.Statement (Int64) [Int64] 
   deleteNodeStatement = Statement.Statement sql encoder decoder True 
     where
-      sql = "DELETE FROM node WHERE \"idNode\" = $1 RETURNING \"idNode\";"
+      sql = "DELETE FROM node WHERE id_node = $1 RETURNING id_node;"
       encoder = (Encoders.param (Encoders.nonNullable Encoders.int8))
       decoder = Decoders.rowList (Decoders.column (Decoders.nonNullable Decoders.int8))
 
@@ -86,10 +86,10 @@ module Bd
           
         
           
-  renameNodeStatement :: Statement.Statement (Int64, Text) [Int64] --- надо Int64 - для idNode
+  renameNodeStatement :: Statement.Statement (Int64, Text) [Int64] 
   renameNodeStatement = Statement.Statement sql encoder decoder True 
     where
-      sql = "UPDATE node SET label = $2 WHERE \"idNode\" = $1 RETURNING \"idNode\";"
+      sql = "UPDATE node SET label = $2 WHERE id_node = $1 RETURNING id_node;"
       encoder = (fst >$< Encoders.param (Encoders.nonNullable Encoders.int8)) <> (snd >$< Encoders.param (Encoders.nonNullable Encoders.text))
       decoder = Decoders.rowList (Decoders.column (Decoders.nonNullable Decoders.int8))
 
@@ -101,10 +101,10 @@ module Bd
             
           
             
-  linkNodesStatement :: Statement.Statement (Int64, Int64) [Int64] --- надо Int64 - для idNode
+  linkNodesStatement :: Statement.Statement (Int64, Int64) [Int64] 
   linkNodesStatement = Statement.Statement sql encoder decoder True 
     where
-      sql = "INSERT INTO edge(\"firstNode\", \"secondNode\") VALUES($1, $2) RETURNING \"idEdge\";"
+      sql = "INSERT INTO edge(first_node, second_node) VALUES($1, $2) RETURNING id_edge;"
       encoder = (fst >$< Encoders.param (Encoders.nonNullable Encoders.int8)) <> (snd >$< Encoders.param (Encoders.nonNullable Encoders.int8))
       decoder = Decoders.rowList (Decoders.column (Decoders.nonNullable Decoders.int8))
 
@@ -117,10 +117,10 @@ module Bd
     
  
     
-  getNodesStatement :: Statement.Statement () [(Int64, Text)] --- надо Int64 - для idNode
+  getNodesStatement :: Statement.Statement () [(Int64, Text)] 
   getNodesStatement = Statement.Statement sql encoder decoder True 
     where
-      sql = "select  \"idNode\", \"label\" from node;"
+      sql = "select id_node, label from node;"
       encoder = Encoders.noParams -- без параметров
       decoder =  Decoders.rowList (x)
 
@@ -131,9 +131,9 @@ module Bd
           
          
           
-  getNeighbStatement :: Statement.Statement (Int64) ([(Int64, Text)]) --- надо Int64 - для idNode
+  getNeighbStatement :: Statement.Statement (Int64) ([(Int64, Text)]) 
   getNeighbStatement = Statement.Statement sql encoder decoder True 
     where
-      sql = "SELECT \"idNode\", \"label\" FROM node JOIN edge ON \"firstNode\" = $1 AND \"secondNode\" = \"idNode\";"
+      sql = "SELECT id_node, label FROM node JOIN edge ON first_node = $1 AND second_node = id_node;"
       encoder = (Encoders.param (Encoders.nonNullable Encoders.int8))
       decoder =   Decoders.rowList (x)
